@@ -1,0 +1,83 @@
+{% extends "base.html" %} {% block title %}Ürün Ekle (Admin){% endblock %} {%
+block content %}
+<div class="container">
+  <h2 class="mb-4">Ürün Ekle (Admin)</h2>
+  <form method="post">
+    <div class="form-group">
+      <label for="name">İsim:</label>
+      <input type="text" class="form-control" name="name" id="name" required />
+    </div>
+    <div class="form-group">
+      <label for="description">Açıklama:</label>
+      <input
+        type="text"
+        class="form-control"
+        name="description"
+        id="description"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="price">Fiyat:</label>
+      <input
+        type="number"
+        class="form-control"
+        name="price"
+        id="price"
+        step="0.01"
+      />
+    </div>
+    <div class="form-group">
+      <label for="seller">Satıcı:</label>
+      <input
+        type="text"
+        class="form-control"
+        name="seller"
+        id="seller"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="image">Resim URL:</label>
+      <input
+        type="text"
+        class="form-control"
+        name="image"
+        id="image"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="category">Kategori:</label>
+      <select name="category" id="category" class="form-control" required>
+        <option value="Vinyls">Vinyls</option>
+        <option value="Antique Furniture">Antique Furniture</option>
+        <option value="GPS Sport Watches">GPS Sport Watches</option>
+        <option value="Running Shoes">Running Shoes</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="battery_life">Battery Life (varsa):</label>
+      <input
+        type="text"
+        class="form-control"
+        name="battery_life"
+        id="battery_life"
+      />
+    </div>
+    <div class="form-group">
+      <label for="age">Age (varsa):</label>
+      <input type="text" class="form-control" name="age" id="age" />
+    </div>
+    <div class="form-group">
+      <label for="size">Size (varsa):</label>
+      <input type="text" class="form-control" name="size" id="size" />
+    </div>
+    <div class="form-group">
+      <label for="material">Material (varsa):</label>
+      <input type="text" class="form-control" name="material" id="material" />
+    </div>
+    <button type="submit" class="btn btn-primary">Ürün Ekle</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% block title %}Kullanıcı Sil (Admin){% endblock %}
+{% block content %}
+<div class="container">
+  <h1 class="mb-4">Kullanıcıları Sil (Admin)</h1>
+  <form method="post" action="{{ url_for('remove_user') }}">
+    {% for user in users %}
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        name="user_ids"
+        value="{{ user.user_id }}"
+        id="user{{ user.user_id }}"
+      />
+      <label class="form-check-label" for="user{{ user.user_id }}">
+        {{ user.username }}
+      </label>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-danger mt-3">Seçilenleri Sil</button>
+  </form>
+</div>
+{% endblock %}

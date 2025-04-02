@@ -1,0 +1,305 @@
+{% extends "base.html" %} {% block title %}E-Commerce - Homepage{% endblock %}
+{% block content %}
+
+<!-- Kategori Kartları -->
+<div class="container mb-5">
+  <div class="row">
+    <div class="col-12 text-center mb-4">
+      <h2 class="font-weight-bold text-dark">Categories</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-3 col-sm-6 mb-4">
+      <a
+        href="{{ url_for('home', category='Vinyls') }}"
+        class="text-decoration-none"
+      >
+        <div class="card text-center h-100 border-0 shadow-sm hover-card">
+          <div class="card-body py-4">
+            <i class="fas fa-compact-disc fa-3x text-dark mb-3"></i>
+            <h5 class="card-title text-dark">Vinyls</h5>
+            <p class="card-text text-muted small">
+              Discover classic and modern vinyls
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-4">
+      <a
+        href="{{ url_for('home', category='Antique Furniture') }}"
+        class="text-decoration-none"
+      >
+        <div class="card text-center h-100 border-0 shadow-sm hover-card">
+          <div class="card-body py-4">
+            <i class="fas fa-couch fa-3x text-dark mb-3"></i>
+            <h5 class="card-title text-dark">Antique Furniture</h5>
+            <p class="card-text text-muted small">Timeless furniture options</p>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-4">
+      <a
+        href="{{ url_for('home', category='GPS Sport Watches') }}"
+        class="text-decoration-none"
+      >
+        <div class="card text-center h-100 border-0 shadow-sm hover-card">
+          <div class="card-body py-4">
+            <i class="fas fa-stopwatch fa-3x text-dark mb-3"></i>
+            <h5 class="card-title text-dark">GPS Watches</h5>
+            <p class="card-text text-muted small">
+              Smart watches for sports and activity tracking
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-4">
+      <a
+        href="{{ url_for('home', category='Running Shoes') }}"
+        class="text-decoration-none"
+      >
+        <div class="card text-center h-100 border-0 shadow-sm hover-card">
+          <div class="card-body py-4">
+            <i class="fas fa-running fa-3x text-dark mb-3"></i>
+            <h5 class="card-title text-dark">Running Shoes</h5>
+            <p class="card-text text-muted small">
+              Performance and comfort combined
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Filtreler ve Ürün Listesi -->
+<div class="container-fluid" id="urunler">
+  <div class="row">
+    <!-- Sidebar / Filtreler -->
+    <div class="col-lg-3 mb-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-dark text-white py-3">
+          <h5 class="mb-0"><i class="fas fa-filter mr-2"></i>Filters</h5>
+        </div>
+        <div class="card-body bg-light">
+          <!-- Kategori Filtreleri -->
+          <h6 class="font-weight-bold mb-3 text-dark">Categories</h6>
+          <div class="list-group list-group-flush mb-4">
+            <a
+              href="{{ url_for('home') }}"
+              class="list-group-item list-group-item-action border-0 bg-light {% if not request.args.get('category') %}active bg-secondary text-white{% endif %}"
+            >
+              <i class="fas fa-th-large mr-2"></i>All Products
+            </a>
+            <a
+              href="{{ url_for('home', category='Vinyls') }}"
+              class="list-group-item list-group-item-action border-0 bg-light {% if request.args.get('category') == 'Vinyls' %}active bg-secondary text-white{% endif %}"
+            >
+              <i class="fas fa-compact-disc mr-2"></i>Vinyls
+            </a>
+            <a
+              href="{{ url_for('home', category='Antique Furniture') }}"
+              class="list-group-item list-group-item-action border-0 bg-light {% if request.args.get('category') == 'Antique Furniture' %}active bg-secondary text-white{% endif %}"
+            >
+              <i class="fas fa-couch mr-2"></i>Antique Furniture
+            </a>
+            <a
+              href="{{ url_for('home', category='GPS Sport Watches') }}"
+              class="list-group-item list-group-item-action border-0 bg-light {% if request.args.get('category') == 'GPS Sport Watches' %}active bg-secondary text-white{% endif %}"
+            >
+              <i class="fas fa-stopwatch mr-2"></i>GPS Watches
+            </a>
+            <a
+              href="{{ url_for('home', category='Running Shoes') }}"
+              class="list-group-item list-group-item-action border-0 bg-light {% if request.args.get('category') == 'Running Shoes' %}active bg-secondary text-white{% endif %}"
+            >
+              <i class="fas fa-running mr-2"></i>Running Shoes
+            </a>
+          </div>
+
+          <!-- Fiyat Aralığı Filtresi -->
+          <h6 class="font-weight-bold mb-3 text-dark">Price Range</h6>
+          <form method="get" action="{{ url_for('home') }}">
+            {% if request.args.get('category') %}
+            <input
+              type="hidden"
+              name="category"
+              value="{{ request.args.get('category') }}"
+            />
+            {% endif %}
+            <div class="form-group">
+              <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                  <div class="input-group-text bg-dark text-white">₺</div>
+                </div>
+                <input
+                  type="number"
+                  class="form-control bg-white"
+                  id="min_price"
+                  name="min_price"
+                  placeholder="Min"
+                  value="{{ request.args.get('min_price', '') }}"
+                />
+              </div>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <div class="input-group-text bg-dark text-white">₺</div>
+                </div>
+                <input
+                  type="number"
+                  class="form-control bg-white"
+                  id="max_price"
+                  name="max_price"
+                  placeholder="Max"
+                  value="{{ request.args.get('max_price', '') }}"
+                />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-dark btn-block">
+              <i class="fas fa-search mr-2"></i>Filter
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ürün Listesi -->
+    <div class="col-lg-9">
+      <!-- Başlık ve Sıralama -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 text-dark">
+          {% if request.args.get('category') %} {{ request.args.get('category')
+          }} {% else %} All Products {% endif %}
+        </h2>
+        <div class="dropdown">
+          <button
+            class="btn btn-outline-dark dropdown-toggle"
+            type="button"
+            id="sortDropdown"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-sort mr-1"></i>Sort
+          </button>
+          <div
+            class="dropdown-menu dropdown-menu-right"
+            aria-labelledby="sortDropdown"
+          >
+            <a
+              class="dropdown-item"
+              href="{{ url_for('home', category=request.args.get('category'), sort='price_asc') }}"
+            >
+              <i class="fas fa-sort-amount-down-alt mr-2"></i>Price: Low to High
+            </a>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('home', category=request.args.get('category'), sort='price_desc') }}"
+            >
+              <i class="fas fa-sort-amount-down mr-2"></i>Price: High to Low
+            </a>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('home', category=request.args.get('category'), sort='newest') }}"
+            >
+              <i class="fas fa-calendar-alt mr-2"></i>Newest
+            </a>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('home', category=request.args.get('category'), sort='popular') }}"
+            >
+              <i class="fas fa-fire mr-2"></i>Most Popular
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ürün Grid -->
+      <div class="row">
+        {% for item in items %}
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 border-0 shadow-sm hover-card home-card">
+            <div class="position-relative">
+              <img
+                src="{{ item.image }}"
+                class="card-img-top"
+                alt="{{ item.name }}"
+                style="height: 400px; object-fit: cover"
+              />
+              <div
+                class="position-absolute badge badge-dark p-2"
+                style="top: 10px; left: 10px"
+              >
+                {{ item.category }}
+              </div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title font-weight-bold text-dark">
+                {{ item.name }}
+              </h5>
+              <p class="card-text text-muted small">
+                {{ item.description|truncate(100) }}
+              </p>
+              <div
+                class="d-flex justify-content-between align-items-center mt-3"
+              >
+                <div>
+                  <span
+                    class="font-weight-bold text-dark"
+                    style="font-size: 1.2rem"
+                    >$ {{ item.price }}</span
+                  >
+                </div>
+                {% if item.rating %}
+                <div>
+                  <small class="text-warning">
+                    {% set star_rating = item.rating / 2 %} {% set full_stars =
+                    star_rating|int %} {% if star_rating - full_stars >= 0.5 %}
+                    {% set half_star = 1 %} {% else %} {% set half_star = 0 %}
+                    {% endif %} {% set empty_stars = 5 - full_stars - half_star
+                    %} {# Tam yıldızlar #} {% for i in range(full_stars) %}
+                    <i class="fas fa-star"></i>
+                    {% endfor %} {# Yarım yıldız varsa #} {% if half_star %}
+                    <i class="fas fa-star-half-alt"></i>
+                    {% endif %} {# Boş yıldızlar #} {% for i in
+                    range(empty_stars) %}
+                    <i class="far fa-star"></i>
+                    {% endfor %}
+                  </small>
+                </div>
+
+                {% endif %}
+              </div>
+            </div>
+            <div
+              class="card-footer border-top-0 p-3"
+              style="background-color: transparent !important"
+            >
+              <a
+                href="{{ url_for('item_detail', item_id=item.item_id) }}"
+                class="btn text-white d-block w-100 py-2"
+                style="
+                  background-color: #8f00ff !important;
+                  border: 1px solid white !important;
+                "
+              >
+                <i class="fas fa-info-circle mr-2"></i>Details
+              </a>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+          <div class="alert alert-secondary text-center py-5">
+            <i class="fas fa-search fa-3x mb-3 text-dark"></i>
+            <h4 class="text-dark">No products found</h4>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

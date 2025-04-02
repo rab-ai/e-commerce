@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}E-Commerce{% endblock %}</title>
+    <!-- Bootstrap CSS (via CDN) -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <!-- Custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <style>
+      /* Filtreleme aktif kategori stilleri */
+      .list-group-item.active {
+        background-color: #8f00ff !important;
+        border-color: #8f00ff !important;
+        color: white !important;
+      }
+
+      .list-group-item.active i {
+        color: white !important;
+      }
+    </style>
+    <style>
+      body {
+        padding-top: 70px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+          <i class="fas fa-store mr-2"></i>E-Commerce
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="{{ url_for('home') }}">
+                <i class="fas fa-home mr-1"></i>Home
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                Categories
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a
+                  class="dropdown-item"
+                  href="{{ url_for('home', category='Vinyls') }}"
+                  >Vinyls</a
+                >
+                <a
+                  class="dropdown-item"
+                  href="{{ url_for('home', category='Antique Furniture') }}"
+                  >Antique Furniture</a
+                >
+                <a
+                  class="dropdown-item"
+                  href="{{ url_for('home', category='GPS Sport Watches') }}"
+                  >GPS Sport Watches</a
+                >
+                <a
+                  class="dropdown-item"
+                  href="{{ url_for('home', category='Running Shoes') }}"
+                  >Running Shoes</a
+                >
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{{ url_for('home') }}"
+                  >All Products</a
+                >
+              </div>
+            </li>
+          </ul>
+
+          {% if request.endpoint == 'home' %}
+          <form
+            class="form-inline my-2 my-lg-0 mr-3"
+            method="get"
+            action="{{ url_for('home') }}"
+          >
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search product..."
+                name="search"
+              />
+              <div class="input-group-append">
+                <button class="btn btn-outline-light" type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+          {% endif %}
+
+          <!-- User Links -->
+          <ul class="navbar-nav">
+            {% if session.get("user_id") %} {% if session.get("is_admin") %}
+            <li class="nav-item">
+              <a href="{{ url_for('admin_panel') }}" class="btn btn-dark">
+                <i class="fas fa-tools mr-1"></i> Admin Panel
+              </a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('profile') }}">
+                <i class="fas fa-user-circle mr-1"></i>My Profile
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('logout') }}">
+                <i class="fas fa-sign-out-alt mr-1"></i>Logout
+              </a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">
+                <i class="fas fa-sign-in-alt mr-1"></i>Login
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('register') }}">
+                <i class="fas fa-user-plus mr-1"></i>Register
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container-fluid mt-4">{% block content %}{% endblock %}</div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Only applies to cards with 'home-card' class
+        $('.home-card').hover(
+          function () {
+            $(this).css({
+              transform: 'translateY(-5px) scale(1.05)',
+              'box-shadow': '0 10px 20px rgba(0, 0, 0, 0.2)',
+            })
+          },
+          function () {
+            $(this).css({
+              transform: 'none',
+              'box-shadow': '0 2px 5px rgba(0, 0, 0, 0.1)',
+            })
+          }
+        )
+      })
+    </script>
+  </body>
+</html>

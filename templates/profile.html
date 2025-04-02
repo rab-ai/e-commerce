@@ -1,0 +1,88 @@
+{% extends "base.html" %} {% block title %}User Profile{% endblock %} {% block
+content %}
+<div class="container py-5">
+  <!-- User Profile Header -->
+  <div class="row mb-5">
+    <div class="col-md-4 text-center">
+      <div class="mb-4">
+        <i class="fas fa-user-circle fa-5x" style="color: #8f00ff"></i>
+      </div>
+      <h2>{{ username }}</h2>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title mb-4">Profile Information</h3>
+
+          <div class="d-flex align-items-center mb-3">
+            <div class="mr-3">
+              {% set user_rating = average_rating|float if average_rating else 0
+              %} {% for i in range(5) %} {% if i < user_rating %}
+              <i class="fas fa-star text-warning"></i>
+              {% elif (user_rating - i) > 0 %}
+              <i class="fas fa-star-half-alt text-warning"></i>
+              {% else %}
+              <i class="far fa-star text-warning"></i>
+              {% endif %} {% endfor %}
+              <span class="ml-2"
+                >{{ "%.1f"|format(user_rating) }} Average Rating</span
+              >
+            </div>
+          </div>
+
+          {% if session.get("is_admin") %}
+          <div class="mt-4">
+            <a href="{{ url_for('admin_panel') }}" class="btn btn-dark">
+              <i class="fas fa-tools mr-2"></i>Admin Panel
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews Section -->
+  <div class="row">
+    <div class="col-12">
+      <h3 class="mb-4 border-bottom pb-2">My Reviews</h3>
+
+      {% if reviews %} {% for rev in reviews %}
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <h5 class="card-title">{{ rev.item_name }}</h5>
+            <div>
+              {% if rev.rating is defined and rev.rating %} {% for i in range(5)
+              %} {% if i < (rev.rating/2) %}
+              <i class="fas fa-star text-warning"></i>
+              {% else %}
+              <i class="far fa-star text-warning"></i>
+              {% endif %} {% endfor %} {% else %}
+              <!-- Rating yoksa belki "No rating" gösterebilirsin veya boş bırakabilirsin -->
+              {% endif %}
+            </div>
+          </div>
+          <p class="card-text mt-2">{{ rev.review }}</p>
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <div class="alert alert-secondary">
+        <i class="fas fa-comment-slash mr-2"></i>No reviews written yet.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .card {
+    transition: none !important;
+  }
+  .card:hover {
+    transform: none !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  }
+</style>
+{% endblock %}

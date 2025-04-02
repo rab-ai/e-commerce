@@ -1,0 +1,269 @@
+{% extends "base.html" %} {% block title %}Admin Panel{% endblock %} {% block
+content %}
+<div class="container">
+  <h1 class="mb-4">Admin Panel</h1>
+
+  <!-- Dört İşlem Butonu (Üstte) -->
+  <div class="row text-center mb-4">
+    <div class="col-md-3 col-sm-6 mb-2">
+      <a
+        href="{{ url_for('admin_panel', section='add_item') }}"
+        class="btn btn-primary btn-block"
+      >
+        Add Item
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-2">
+      <a
+        href="{{ url_for('admin_panel', section='remove_item') }}"
+        class="btn btn-danger btn-block"
+      >
+        Remove Item
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-2">
+      <a
+        href="{{ url_for('admin_panel', section='add_user') }}"
+        class="btn btn-info btn-block"
+      >
+        Add User
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-2">
+      <a
+        href="{{ url_for('admin_panel', section='remove_user') }}"
+        class="btn btn-block text-white"
+        style="background-color: #51a687; border: none"
+      >
+        Remove User
+      </a>
+    </div>
+  </div>
+
+  <!-- section parametresine göre hangi form/liste gösterilecek -->
+  {% if section == "add_item" %}
+  <h3 class="mb-3">Add Item</h3>
+  <form method="post" action="{{ url_for('admin_panel') }}" autocomplete="off">
+    <input type="hidden" name="action" value="add_item" />
+
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" class="form-control" name="name" required />
+    </div>
+
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" class="form-control" name="description" required />
+    </div>
+
+    <div class="form-group">
+      <label>Price</label>
+      <input type="number" step="0.01" class="form-control" name="price" />
+    </div>
+
+    <div class="form-group">
+      <label>Seller</label>
+      <input type="text" class="form-control" name="seller" required />
+    </div>
+
+    <div class="form-group">
+      <label>Image URL</label>
+      <input type="text" class="form-control" name="image" required />
+    </div>
+
+    <div class="form-group">
+      <label>Category</label>
+      <select name="category" class="form-control" required>
+        <option value="Vinyls">Vinyls</option>
+        <option value="Antique Furniture">Antique Furniture</option>
+        <option value="GPS Sport Watches">GPS Sport Watches</option>
+        <option value="Running Shoes">Running Shoes</option>
+      </select>
+    </div>
+
+    <!-- Opsiyonel Alanlar -->
+    <div class="form-group">
+      <label>Battery Life (GPS Watches)</label>
+      <input type="text" class="form-control" name="battery_life" />
+    </div>
+    <div class="form-group">
+      <label>Age (Antique Furniture / Vinyls)</label>
+      <input type="text" class="form-control" name="age" />
+    </div>
+    <div class="form-group">
+      <label>Size (Running Shoes)</label>
+      <input type="text" class="form-control" name="size" />
+    </div>
+    <div class="form-group">
+      <label>Material (Furniture, Running Shoes)</label>
+      <input type="text" class="form-control" name="material" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Item</button>
+  </form>
+
+  {% elif section == "remove_item" %}
+  <h3 class="mb-3">Remove Item</h3>
+  <form method="post" action="{{ url_for('admin_panel') }}">
+    <input type="hidden" name="action" value="remove_item" />
+
+    <div class="row">
+      {% for item in items %}
+      <!-- 
+        col-sm-6 => küçük ekranlarda 2 sütun,
+        col-md-6 => orta ekranlarda 2 sütun,
+        col-lg-6 => büyük ekranlarda 2 sütun (eskiden col-lg-3 idi, şimdi 2 kat geniş)
+      -->
+      <div
+        class="col-sm-6 col-md-6 col-lg-6 mb-3"
+        onclick="toggleSelection(this)"
+        style="cursor: pointer"
+      >
+        <!-- Kart -->
+        <div
+          class="card h-100 card-selectable p-2"
+          style="transition: background-color 0.3s ease"
+        >
+          <!-- Gizli checkbox -->
+          <input
+            type="checkbox"
+            name="item_ids"
+            value="{{ item.item_id }}"
+            style="display: none"
+          />
+
+          <div class="d-flex align-items-center">
+            <!-- Küçük ürün resmi -->
+            <img
+              src="{{ item.image }}"
+              alt="{{ item.name }}"
+              style="
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                margin-right: 10px;
+              "
+            />
+            <!-- Ürün adı, kategori, fiyat bilgisi -->
+            <div>
+              <div class="font-weight-bold">
+                <a
+                  href="{{ url_for('item_detail', item_id=item.item_id) }}"
+                  onclick="event.stopPropagation();"
+                  class="text-dark"
+                >
+                  {{ item.name }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-danger mt-3">Remove Selected</button>
+  </form>
+
+  <script>
+    function toggleSelection(columnDiv) {
+      const card = columnDiv.querySelector('.card-selectable')
+      const checkbox = columnDiv.querySelector('input[type="checkbox"]')
+
+      checkbox.checked = !checkbox.checked
+
+      // Renk
+      if (checkbox.checked) {
+        card.style.backgroundColor = '#ff7f7f'
+      } else {
+        card.style.backgroundColor = ''
+      }
+    }
+  </script>
+
+  {% elif section == "add_user" %}
+  <h3 class="mb-3">Add User</h3>
+  <form method="post" action="{{ url_for('admin_panel') }}" autocomplete="off">
+    <input type="hidden" name="action" value="add_user" />
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" class="form-control" name="username" required />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input
+        type="password"
+        class="form-control"
+        name="password"
+        required
+        autocomplete="new-password"
+      />
+    </div>
+    <button type="submit" class="btn btn-info text-white">Add User</button>
+  </form>
+
+  {% elif section == "remove_user" %}
+  <h3 class="mb-3">Remove User</h3>
+  <form method="post" action="{{ url_for('admin_panel') }}">
+    <input type="hidden" name="action" value="remove_user" />
+
+    <div class="row">
+      {% for user in users %}
+      <div
+        class="col-sm-6 col-md-4 col-lg-3 mb-3"
+        style="cursor: pointer"
+        onclick="toggleUserSelection(this)"
+      >
+        <div
+          class="card h-100 p-2 card-selectable"
+          style="transition: background-color 0.3s ease"
+        >
+          <!-- Gizli checkbox -->
+          <input
+            type="checkbox"
+            name="user_ids"
+            value="{{ user.user_id }}"
+            style="display: none"
+          />
+
+          <!-- Kullanıcı bilgisi -->
+          <div>
+            <h5 class="mb-1">{{ user.username }}</h5>
+            <!-- Ek bilgi, isterseniz buraya ekleyebilirsiniz -->
+            <small class="text-muted">Regular user</small>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button
+      type="submit"
+      class="btn btn-warning text-white mt-3 style="
+      style="background-color: #51a687; border: none"
+    >
+      Remove Selected
+    </button>
+  </form>
+
+  <script>
+    function toggleUserSelection(columnDiv) {
+      const card = columnDiv.querySelector('.card-selectable')
+      const checkbox = columnDiv.querySelector('input[type="checkbox"]')
+
+      // Seçili durumu tersine çevir
+      checkbox.checked = !checkbox.checked
+
+      // Seçiliyse renk değiştir, değilse eski haline
+      if (checkbox.checked) {
+        card.style.backgroundColor = '#E3FFF5' // İstediğiniz renk
+      } else {
+        card.style.backgroundColor = ''
+      }
+    }
+  </script>
+
+  {% else %}
+  <p>Lütfen bir işlem seçin.</p>
+  {% endif %}
+</div>
+{% endblock %}

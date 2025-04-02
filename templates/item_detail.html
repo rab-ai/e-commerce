@@ -1,0 +1,170 @@
+{% extends "base.html" %} {% block title %}{{ item.name }} - Details{% endblock
+%} {% block content %}
+<div class="container py-5">
+  <!-- Product Header Section -->
+  <div class="row mb-5">
+    <!-- Product Image -->
+    <div class="col-md-6">
+      <img
+        src="{{ item.image }}"
+        class="img-fluid rounded shadow"
+        alt="{{ item.name }}"
+        style="max-height: 500px; object-fit: contain"
+      />
+    </div>
+
+    <!-- Product Info -->
+    <div class="col-md-6">
+      <h1 class="display-5 mb-3">{{ item.name }}</h1>
+      <p class="text-muted mb-4">{{ item.description }}</p>
+
+      <div class="d-flex align-items-center mb-3">
+        {% set star_rating = (item.rating/2) if item.rating else 0 %}
+        <div class="mr-3">
+          {% for i in range(5) %} {% if i < star_rating|int %}
+          <i class="fas fa-star text-warning"></i>
+          {% elif (star_rating - i) > 0 %}
+          <i class="fas fa-star-half-alt text-warning"></i>
+          {% else %}
+          <i class="far fa-star text-warning"></i>
+          {% endif %} {% endfor %}
+          <span class="ml-2">({{ "%.1f"|format(star_rating) }}/5)</span>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h3 class="text-primary">${{ "%.2f"|format(item.price|float) }}</h3>
+        <p class="text-muted">Sold by: {{ item.seller }}</p>
+      </div>
+
+      <div class="mb-4">
+        {% if item.age %}
+        <p><strong>Age:</strong> {{ item.age }} years</p>
+        {% endif %} {% if item.battery_life %}
+        <p><strong>Battery Life:</strong> {{ item.battery_life }}</p>
+        {% endif %} {% if item.size %}
+        <p><strong>Size:</strong> {{ item.size }}</p>
+        {% endif %} {% if item.material %}
+        <p><strong>Material:</strong> {{ item.material }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews Section -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title mb-4">Customer Reviews</h3>
+
+          {% if session.get("user_id") %}
+          <!-- Rating & Review Form -->
+          <div class="border-bottom pb-4 mb-4">
+            <h4>Rate & Review this product</h4>
+            <form
+              action="{{ url_for('rate_review_item', item_id=item.item_id) }}"
+              method="post"
+            >
+              <div class="form-group">
+                <label>Your Rating (1-5 stars)</label>
+                <div class="star-rating mb-3">
+                  {% for i in range(5, 0, -1) %}
+                  <input
+                    type="radio"
+                    id="star{{i}}"
+                    name="rating"
+                    value="{{i*2}}"
+                  />
+                  <label for="star{{i}}"><i class="fas fa-star"></i></label>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="review">Your Review</label>
+                <textarea
+                  name="review"
+                  id="review"
+                  class="form-control"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-success">
+                Submit Review & Rating
+              </button>
+            </form>
+          </div>
+          {% else %}
+          <div class="alert alert-info">
+            Please
+            <a href="{{ url_for('login') }}" class="alert-link">login</a> to
+            leave a review.
+          </div>
+          {% endif %}
+
+          <!-- Existing Reviews Section -->
+          <div class="mt-4">
+            <h5 class="mb-4">Customer Reviews</h5>
+
+            {% if reviews %} {% for review in reviews %}
+            <div class="media mb-4 border-bottom pb-3">
+              <div class="media-body">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="mb-0">{{ review.username }}</h6>
+                </div>
+
+                {% if review.rating %}
+                <div class="mb-2">
+                  {% for i in range(5) %} {% if i < (review.rating/2) %}
+                  <i class="fas fa-star text-warning"></i>
+                  {% else %}
+                  <i class="far fa-star text-warning"></i>
+                  {% endif %} {% endfor %}
+                </div>
+                {% endif %}
+
+                <p>{{ review.review_text }}</p>
+              </div>
+            </div>
+            {% endfor %} {% else %}
+            <div class="alert alert-secondary">
+              <i class="fas fa-comment-slash mr-2"></i>No reviews yet. Be the
+              first to review!
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+  .star-rating input {
+    display: none;
+  }
+  .star-rating label {
+    font-size: 1.5rem;
+    color: #ddd;
+    cursor: pointer;
+    padding: 0 0.2rem;
+  }
+  .star-rating input:checked ~ label,
+  .star-rating input:hover ~ label {
+    color: #ffc107;
+  }
+  .star-rating label:hover,
+  .star-rating label:hover ~ label {
+    color: #ffc107;
+  }
+</style>
+{% endblock %}

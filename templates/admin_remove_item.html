@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% block title %}Ürün Sil (Admin){% endblock %} {%
+block content %}
+<div class="container">
+  <h1 class="mb-4">Ürünleri Sil (Admin)</h1>
+  <form method="post" action="{{ url_for('remove_item') }}">
+    {% for item in items %}
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        name="item_ids"
+        value="{{ item.item_id }}"
+        id="item{{ item.item_id }}"
+      />
+      <label class="form-check-label" for="item{{ item.item_id }}">
+        {{ item.name }} - {{ item.category }} - {{ item.price }} TL
+      </label>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-danger mt-3">Seçilenleri Sil</button>
+  </form>
+</div>
+{% endblock %}

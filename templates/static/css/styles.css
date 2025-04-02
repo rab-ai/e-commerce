@@ -1,0 +1,67 @@
+.card {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.05) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+.hover-card {
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+/* Filtreleme aktif kategori stilleri */
+.list-group-item.active {
+  background-color: #8f00ff !important;
+  border-color: #8f00ff !important;
+  color: white !important;
+}
+
+.list-group-item.active i {
+  color: white !important;
+}
+
+/* Violet Details Button */
+.btn-details {
+  background-color: #8f00ff !important;
+  color: white !important;
+  border-color: #8f00ff !important;
+  width: 120px; /* Adjust width as needed */
+  padding: 8px 0; /* Increase padding for height */
+  transition: all 0.3s ease;
+}
+
+.btn-details:hover {
+  background-color: #7a00e0 !important; /* Slightly darker violet on hover */
+  border-color: #7a00e0 !important;
+  color: white !important;
+}
+
+.btn-details i {
+  color: white !important;
+}
+
+/* Violet arkaplan rengi */
+.bg-violet {
+  background-color: #8f00ff !important;
+}
+.text-violet {
+  color: #8f00ff !important;
+}
+
+.page-item.active .page-link {
+  background: #8f00ff !important;
+  border-color: #8f00ff !important;
+  color: #8f00ff !important;
+}
+
+.selected-card {
+  background-color: #8f00ff; /* pastel açık kırmızı örneği */
+  transition: background-color 0.8s ease;
+}
