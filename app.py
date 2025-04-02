@@ -513,9 +513,12 @@ def admin_panel():
         users=users
     )
 
-# Vercel için gerekli handler:
+# Vercel için handler tanımı
 def handler(request, context):
     return app(request.environ, lambda status, headers: (status, headers))
+
+# Flask app'ini handler olarak dışa aktar
+app.handler = handler
 
 if __name__ == "__main__":
     # Eğer admin kullanıcısı zaten yoksa oluştur
