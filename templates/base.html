@@ -167,24 +167,5 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-      $(document).ready(function () {
-        // Only applies to cards with 'home-card' class
-        $('.home-card').hover(
-          function () {
-            $(this).css({
-              transform: 'translateY(-5px) scale(1.05)',
-              'box-shadow': '0 10px 20px rgba(0, 0, 0, 0.2)',
-            })
-          },
-          function () {
-            $(this).css({
-              transform: 'none',
-              'box-shadow': '0 2px 5px rgba(0, 0, 0, 0.1)',
-            })
-          }
-        )
-      })
-    </script>
   </body>
 </html>
