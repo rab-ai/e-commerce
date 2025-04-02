@@ -527,3 +527,7 @@ if __name__ == "__main__":
         }
         users_collection.insert_one(admin_user)
     app.run(debug=True)
+
+# Vercel için gerekli handler:
+def handler(request, context):
+    return app(request.environ, lambda status, headers: (status, headers))
