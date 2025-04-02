@@ -236,7 +236,6 @@ def rate_review_item(item_id):
         flash("Rating and review submitted successfully!", "success")
     except Exception as e:
         flash(f"Error submitting rating/review: {str(e)}", "error")
-    print("Review text:", review_text)
     return redirect(url_for('item_detail', item_id=item_id))
 
 
@@ -514,6 +513,9 @@ def admin_panel():
         users=users
     )
 
+# Vercel için gerekli handler:
+def handler(request, context):
+    return app(request.environ, lambda status, headers: (status, headers))
 
 if __name__ == "__main__":
     # Eğer admin kullanıcısı zaten yoksa oluştur
@@ -527,7 +529,3 @@ if __name__ == "__main__":
         }
         users_collection.insert_one(admin_user)
     app.run(debug=True)
-
-# Vercel için gerekli handler:
-def handler(request, context):
-    return app(request.environ, lambda status, headers: (status, headers))
