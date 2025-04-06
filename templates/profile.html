@@ -1,7 +1,6 @@
 {% extends "base.html" %} {% block title %}User Profile{% endblock %} {% block
 content %}
 <div class="container py-5">
-  <!-- User Profile Header -->
   <div class="row mb-5">
     <div class="col-md-4 text-center">
       <div class="mb-4">
@@ -43,7 +42,6 @@ content %}
     </div>
   </div>
 
-  <!-- Reviews Section -->
   <div class="row">
     <div class="col-12">
       <h3 class="mb-4 border-bottom pb-2">My Reviews</h3>
@@ -59,9 +57,7 @@ content %}
               <i class="fas fa-star text-warning"></i>
               {% else %}
               <i class="far fa-star text-warning"></i>
-              {% endif %} {% endfor %} {% else %}
-              <!-- Rating yoksa belki "No rating" gösterebilirsin veya boş bırakabilirsin -->
-              {% endif %}
+              {% endif %} {% endfor %} {% else %} {% endif %}
             </div>
           </div>
           <p class="card-text mt-2">{{ rev.review }}</p>

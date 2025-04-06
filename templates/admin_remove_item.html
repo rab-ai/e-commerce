@@ -1,7 +1,7 @@
-{% extends "base.html" %} {% block title %}Ürün Sil (Admin){% endblock %} {%
+{% extends "base.html" %} {% block title %}Delete Item (Admin){% endblock %} {%
 block content %}
 <div class="container">
-  <h1 class="mb-4">Ürünleri Sil (Admin)</h1>
+  <h1 class="mb-4">Delete Items (Admin)</h1>
   <form method="post" action="{{ url_for('remove_item') }}">
     {% for item in items %}
     <div class="form-check">
@@ -17,7 +17,7 @@ block content %}
       </label>
     </div>
     {% endfor %}
-    <button type="submit" class="btn btn-danger mt-3">Seçilenleri Sil</button>
+    <button type="submit" class="btn btn-danger mt-3">Delete Selected</button>
   </form>
 </div>
 {% endblock %}

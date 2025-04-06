@@ -1,14 +1,14 @@
 {% extends "base.html" %} {% block title %}Ürün Ekle (Admin){% endblock %} {%
 block content %}
 <div class="container">
-  <h2 class="mb-4">Ürün Ekle (Admin)</h2>
+  <h2 class="mb-4">Add Item(Admin)</h2>
   <form method="post">
     <div class="form-group">
       <label for="name">İsim:</label>
       <input type="text" class="form-control" name="name" id="name" required />
     </div>
     <div class="form-group">
-      <label for="description">Açıklama:</label>
+      <label for="description">Description:</label>
       <input
         type="text"
         class="form-control"
@@ -18,7 +18,7 @@ block content %}
       />
     </div>
     <div class="form-group">
-      <label for="price">Fiyat:</label>
+      <label for="price">Price:</label>
       <input
         type="number"
         class="form-control"
@@ -28,7 +28,7 @@ block content %}
       />
     </div>
     <div class="form-group">
-      <label for="seller">Satıcı:</label>
+      <label for="seller">Seller:</label>
       <input
         type="text"
         class="form-control"
@@ -38,7 +38,7 @@ block content %}
       />
     </div>
     <div class="form-group">
-      <label for="image">Resim URL:</label>
+      <label for="image">Image URL:</label>
       <input
         type="text"
         class="form-control"
@@ -48,7 +48,7 @@ block content %}
       />
     </div>
     <div class="form-group">
-      <label for="category">Kategori:</label>
+      <label for="category">Category:</label>
       <select name="category" id="category" class="form-control" required>
         <option value="Vinyls">Vinyls</option>
         <option value="Antique Furniture">Antique Furniture</option>
@@ -57,7 +57,7 @@ block content %}
       </select>
     </div>
     <div class="form-group">
-      <label for="battery_life">Battery Life (varsa):</label>
+      <label for="battery_life">Battery Life:</label>
       <input
         type="text"
         class="form-control"
@@ -66,18 +66,18 @@ block content %}
       />
     </div>
     <div class="form-group">
-      <label for="age">Age (varsa):</label>
+      <label for="age">Age:</label>
       <input type="text" class="form-control" name="age" id="age" />
     </div>
     <div class="form-group">
-      <label for="size">Size (varsa):</label>
+      <label for="size">Size:</label>
       <input type="text" class="form-control" name="size" id="size" />
     </div>
     <div class="form-group">
-      <label for="material">Material (varsa):</label>
+      <label for="material">Material:</label>
       <input type="text" class="form-control" name="material" id="material" />
     </div>
-    <button type="submit" class="btn btn-primary">Ürün Ekle</button>
+    <button type="submit" class="btn btn-primary">Add Item</button>
   </form>
 </div>
 {% endblock %}

@@ -1,9 +1,7 @@
 {% extends "base.html" %} {% block title %}{{ item.name }} - Details{% endblock
 %} {% block content %}
 <div class="container py-5">
-  <!-- Product Header Section -->
   <div class="row mb-5">
-    <!-- Product Image -->
     <div class="col-md-6">
       <img
         src="{{ item.image }}"
@@ -13,7 +11,6 @@
       />
     </div>
 
-    <!-- Product Info -->
     <div class="col-md-6">
       <h1 class="display-5 mb-3">{{ item.name }}</h1>
       <p class="text-muted mb-4">{{ item.description }}</p>
@@ -51,7 +48,6 @@
     </div>
   </div>
 
-  <!-- Reviews Section -->
   <div class="row">
     <div class="col-12">
       <div class="card shadow-sm">
@@ -59,7 +55,6 @@
           <h3 class="card-title mb-4">Customer Reviews</h3>
 
           {% if session.get("user_id") %}
-          <!-- Rating & Review Form -->
           <div class="border-bottom pb-4 mb-4">
             <h4>Rate & Review this product</h4>
             <form
@@ -104,7 +99,6 @@
           </div>
           {% endif %}
 
-          <!-- Existing Reviews Section -->
           <div class="mt-4">
             <h5 class="mb-4">Customer Reviews</h5>
 

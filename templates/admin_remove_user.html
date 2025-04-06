@@ -1,7 +1,7 @@
-{% extends "base.html" %} {% block title %}Kullanıcı Sil (Admin){% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Delete User (Admin){% endblock %} {%
+block content %}
 <div class="container">
-  <h1 class="mb-4">Kullanıcıları Sil (Admin)</h1>
+  <h1 class="mb-4">Delete Users (Admin)</h1>
   <form method="post" action="{{ url_for('remove_user') }}">
     {% for user in users %}
     <div class="form-check">
@@ -17,7 +17,7 @@
       </label>
     </div>
     {% endfor %}
-    <button type="submit" class="btn btn-danger mt-3">Seçilenleri Sil</button>
+    <button type="submit" class="btn btn-danger mt-3">Delete Selected</button>
   </form>
 </div>
 {% endblock %}

@@ -5,19 +5,16 @@ import os
 import uuid
 from functools import wraps
 
-# MongoDB bağlantısı
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://rabiasahincs:G075cFEiv6gjHLiJ@assignment1.lvx4kdh.mongodb.net/?retryWrites=true&w=majority&appName=assignment1")
 client = MongoClient(MONGO_URI)
 db = client["assignment1"]
 
-# Koleksiyonları tanımlıyoruz
 items_collection = db.items
 users_collection = db.users
 
 app = Flask(__name__)
-app.secret_key = 'secret-key'  # Geliştirme için; üretimde daha güvenli bir değer kullanın
+app.secret_key = 'secret-key'
 
-# Oturum açma gerektiren endpointler için dekoratör
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -39,11 +36,6 @@ def admin_required(f):
 
 @app.route("/")
 def home():
-    """
-    Ana sayfa: Tüm ürünleri MongoDB'den listele.
-    İsteğe bağlı olarak URL'de ?category=vinyls gibi bir parametre ile filtreleme yapılabilir.
-    Ürünler, home.html şablonunda listelenir.
-    """
     category = request.args.get('category')
     if category:
         cursor = items_collection.find({"category": category})
@@ -63,14 +55,13 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        # MongoDB'de aynı kullanıcı var mı kontrol et
         if users_collection.find_one({"username": username}):
             return "User already exists!", 400
         user_id = str(uuid.uuid4())
         new_user = {
             "user_id": user_id,
             "username": username,
-            "password": password,  # Gerçek bir projede şifreyi hash'lemeniz önerilir
+            "password": password,
             "is_admin": False
         }
         users_collection.insert_one(new_user)
@@ -138,7 +129,6 @@ def add_item():
         }
         new_item.update(extra_fields)
 
-        # MongoDB'ye ekle
         items_collection.insert_one(new_item)
         return redirect(url_for('home'))
     return render_template("admin_add_item.html")
@@ -149,19 +139,14 @@ def add_item():
 @admin_required
 def remove_item():
     if request.method == "POST":
-        # Formdan seçilen item_id'leri liste olarak al
         item_ids = request.form.getlist("item_ids")
         if item_ids:
-            # Seçilen ürünleri MongoDB'den sil
             items_collection.delete_many({"item_id": {"$in": item_ids}})
         return redirect(url_for('remove_item'))
     else:
-        # GET isteğinde tüm ürünleri çek ve listele
         cursor = items_collection.find()
         items_list = list(cursor)
         return render_template("admin_remove_item.html", items=items_list)
-
-
 
 @app.route("/item/<item_id>", methods=["GET"])
 def item_detail(item_id):
@@ -169,19 +154,18 @@ def item_detail(item_id):
     if not item:
         return "Item not found", 404
     
-    # Review'ları kullanıcı bilgileriyle birleştirip, template ile uyumlu anahtarlar ekleyelim:
     enriched_reviews = []
     for review in item.get("reviews", []):
         user = users_collection.find_one({"user_id": review["user_id"]})
         enriched_reviews.append({
             "username": user["username"] if user else "Unknown User",
-            "review_text": review.get("review_text", ""),  # "content" yerine "review_text"
+            "review_text": review.get("review_text", ""),
             "rating": next(
                 (r["score"] for r in item.get("ratings", []) 
                  if r["user_id"] == review["user_id"]),
                 None
             ),
-            "created_at": review.get("created_at", "N/A")  # Eğer tarih yoksa N/A göster
+            "created_at": review.get("created_at", "N/A")
         })
     
     return render_template("item_detail.html", item=item, reviews=enriched_reviews)
@@ -197,12 +181,11 @@ def rate_review_item(item_id):
         
         update_data = {}
         
-        # Puan güncellemesi
         if rating_value:
             rating_value = int(rating_value)
             items_collection.update_one(
                 {"item_id": item_id},
-                {"$pull": {"ratings": {"user_id": user_id}}}  # Önce eski puanı sil
+                {"$pull": {"ratings": {"user_id": user_id}}}
             )
             
             items_collection.update_one(
@@ -212,11 +195,10 @@ def rate_review_item(item_id):
             
             update_data["rating"] = calculate_average_rating(item_id)
         
-        # Yorum güncellemesi
         if review_text:
             items_collection.update_one(
                 {"item_id": item_id},
-                {"$pull": {"reviews": {"user_id": user_id}}}  # Önce eski yorumu sil
+                {"$pull": {"reviews": {"user_id": user_id}}}
             )
             
             items_collection.update_one(
@@ -229,7 +211,6 @@ def rate_review_item(item_id):
                 }}
             )
         
-        # Ortalama puanı güncelle
         if update_data:
             items_collection.update_one({"item_id": item_id}, {"$set": update_data})
         
@@ -245,19 +226,14 @@ def rate_item(item_id):
     user_id = session.get("user_id")
     rating_value = int(request.form.get("rating"))
     
-    # Önce mevcut rating'i sil
     items_collection.update_one(
         {"item_id": item_id},
         {"$pull": {"ratings": {"user_id": user_id}}}
     )
-    
-    # Sonra yeni rating'i ekle
     items_collection.update_one(
         {"item_id": item_id},
         {"$push": {"ratings": {"user_id": user_id, "score": rating_value}}}
     )
-    
-    # Ortalama puanı güncelle
     new_avg = calculate_average_rating(item_id)
     items_collection.update_one(
         {"item_id": item_id},
@@ -279,13 +255,11 @@ def review_item(item_id):
         user_id = session["user_id"]
         review_text = request.form["review"]
         
-        # Önce eski yorumu sil
         items_collection.update_one(
             {"item_id": item_id},
             {"$pull": {"reviews": {"user_id": user_id}}}
         )
         
-        # Yeni yorumu ekle
         items_collection.update_one(
             {"item_id": item_id},
             {"$push": {
@@ -309,15 +283,14 @@ def add_user():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        # MongoDB'de aynı kullanıcı var mı kontrol et
         if users_collection.find_one({"username": username}):
             return "User already exists!", 400
         user_id = str(uuid.uuid4())
         new_user = {
             "user_id": user_id,
             "username": username,
-            "password": password,  # Gerçek projelerde şifre hash'lenmeli
-            "is_admin": False  # Admin tarafından eklenen kullanıcılar genellikle normal kullanıcı olur
+            "password": password,
+            "is_admin": False
         }
         users_collection.insert_one(new_user)
         return redirect(url_for('home'))
@@ -335,43 +308,28 @@ def add_user():
 @admin_required
 def remove_user():
     if request.method == "POST":
-        # Formdan seçilen user_id'leri liste olarak al
         user_ids = request.form.getlist("user_ids")
         if user_ids:
-            # Seçilen kullanıcıları sil
             users_collection.delete_many({"user_id": {"$in": user_ids}})
-            # Silinen kullanıcıların rating ve review'lerini tüm ürünlerden kaldır
             items_collection.update_many(
                 {},
                 {"$pull": {"ratings": {"user_id": {"$in": user_ids}}, "reviews": {"user_id": {"$in": user_ids}}}}
             )
         return redirect(url_for('remove_user'))
     else:
-        # GET: Non-admin kullanıcıları çek (is_admin False)
         users_cursor = users_collection.find({"is_admin": False})
         users_list = list(users_cursor)
         return render_template("admin_remove_user.html", users=users_list)
 
-
-
 @app.route("/profile")
 @login_required
 def profile():
-    """
-    Giriş yapmış kullanıcının profilini gösterir:
-    - Username
-    - Average Rating (kullanıcının tüm rating'lerinin ortalaması)
-    - Reviews (kullanıcının yazdığı yorumlar, her biri hangi ürüne ait ve rating bilgisiyle)
-    """
     user_id = session.get("user_id")
-    
-    # Kullanıcı bilgilerini al
     user = users_collection.find_one({"user_id": user_id})
     if not user:
         return redirect(url_for("login"))
     username = user["username"]
     
-    # Kullanıcının rating veya yorum yaptığı ürünleri çek
     items_cursor = items_collection.find({
         "$or": [{"ratings.user_id": user_id}, {"reviews.user_id": user_id}]
     })
@@ -381,13 +339,11 @@ def profile():
     reviews_list = []
     
     for item in items_cursor:
-        # Kullanıcının verdiği tüm rating'leri al
         user_ratings = [r["score"] for r in item.get("ratings", []) if r["user_id"] == user_id]
         if user_ratings:
             total_rating += sum(user_ratings)
             rating_count += len(user_ratings)
         
-        # Kullanıcının yazdığı review'leri kontrol et
         for review in item.get("reviews", []):
             if review["user_id"] == user_id:
                 rating_value = next(
@@ -415,20 +371,16 @@ def admin_panel():
     if request.method == "POST":
         action = request.form.get("action")
 
-        # Remove Item
         if action == "remove_item":
             item_ids = request.form.getlist("item_ids")
             if item_ids:
                 items_collection.delete_many({"item_id": {"$in": item_ids}})
-            # PRG: Redirect yeniden GET isteği, form boş gelir
             return redirect(url_for("admin_panel", section="remove_item"))
 
-        # Remove User
         elif action == "remove_user":
             user_ids = request.form.getlist("user_ids")
             if user_ids:
                 users_collection.delete_many({"user_id": {"$in": user_ids}})
-                # Silinen user'ların rating/review bilgilerini de temizle
                 items_collection.update_many(
                     {},
                     {
@@ -440,7 +392,6 @@ def admin_panel():
                 )
             return redirect(url_for("admin_panel", section="remove_user"))
 
-        # Add Item
         elif action == "add_item":
             name = request.form.get("name")
             description = request.form.get("description")
@@ -455,7 +406,6 @@ def admin_panel():
             size = request.form.get("size", "")
             material = request.form.get("material", "")
 
-            # Kategoriye göre ek alanları doldur
             if category == "GPS Sport Watches" and battery_life:
                 extra_fields["battery_life"] = battery_life
             if category in ["Antique Furniture", "Vinyls"] and age:
@@ -482,11 +432,9 @@ def admin_panel():
 
             return redirect(url_for("admin_panel", section="add_item"))
 
-        # Add User
         elif action == "add_user":
             username = request.form.get("username")
             password = request.form.get("password")
-            # Yeni kullanıcı ekle
             if not users_collection.find_one({"username": username}):
                 new_user = {
                     "user_id": str(uuid.uuid4()),
@@ -497,8 +445,6 @@ def admin_panel():
                 users_collection.insert_one(new_user)
 
             return redirect(url_for("admin_panel", section="add_user"))
-
-    # GET isteği (formları göstermek)
     items = []
     users = []
     if section == "remove_item":
@@ -513,21 +459,18 @@ def admin_panel():
         users=users
     )
 
-# Vercel için handler tanımı
 def handler(request, context):
     return app(request.environ, lambda status, headers: (status, headers))
 
-# Flask app'ini handler olarak dışa aktar
 app.handler = handler
 
 if __name__ == "__main__":
-    # Eğer admin kullanıcısı zaten yoksa oluştur
     if not users_collection.find_one({"username": "admin"}):
         admin_id = str(uuid.uuid4())
         admin_user = {
             "user_id": admin_id,
             "username": "admin",
-            "password": "adminpass",  # Güvenlik için şifre hash'lenmeli
+            "password": "adminpass",
             "is_admin": True
         }
         users_collection.insert_one(admin_user)

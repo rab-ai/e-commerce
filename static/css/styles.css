@@ -6,7 +6,6 @@
   transform: translateY(-5px) scale(1.05);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
-/* Filtreleme aktif kategori stilleri */
 .list-group-item.active {
   background-color: #8f00ff !important;
   border-color: #8f00ff !important;
@@ -17,18 +16,17 @@
   color: white !important;
 }
 
-/* Violet Details Button */
 .btn-details {
   background-color: #8f00ff !important;
   color: white !important;
   border-color: #8f00ff !important;
-  width: 120px; /* Adjust width as needed */
-  padding: 8px 0; /* Increase padding for height */
+  width: 120px;
+  padding: 8px 0;
   transition: all 0.3s ease;
 }
 
 .btn-details:hover {
-  background-color: #7a00e0 !important; /* Slightly darker violet on hover */
+  background-color: #7a00e0 !important;
   border-color: #7a00e0 !important;
   color: white !important;
 }
@@ -37,7 +35,6 @@
   color: white !important;
 }
 
-/* Violet arkaplan rengi */
 .bg-violet {
   background-color: #8f00ff !important;
 }
@@ -52,6 +49,6 @@
 }
 
 .selected-card {
-  background-color: #8f00ff; /* pastel açık kırmızı örneği */
+  background-color: #8f00ff;
   transition: background-color 0.8s ease;
 }
