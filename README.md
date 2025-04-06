@@ -73,8 +73,6 @@ The application is deployed on Vercel. You can access the live demo at:
 - **Admin-Only Access:**  
   Only users with admin privileges can access the admin panel.
 
-## Additional Notes
-
 ### Security
 
 - User passwords are securely hashed using bcrypt.
