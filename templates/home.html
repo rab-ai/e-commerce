@@ -127,7 +127,7 @@
             <div class="form-group">
               <div class="input-group mb-2">
                 <div class="input-group-prepend">
-                  <div class="input-group-text bg-dark text-white">₺</div>
+                  <div class="input-group-text bg-dark text-white">$</div>
                 </div>
                 <input
                   type="number"
@@ -140,7 +140,7 @@
               </div>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <div class="input-group-text bg-dark text-white">₺</div>
+                  <div class="input-group-text bg-dark text-white">$</div>
                 </div>
                 <input
                   type="number"
@@ -192,12 +192,6 @@
               href="{{ url_for('home', category=request.args.get('category'), sort='price_desc') }}"
             >
               <i class="fas fa-sort-amount-down mr-2"></i>Price: High to Low
-            </a>
-            <a
-              class="dropdown-item"
-              href="{{ url_for('home', category=request.args.get('category'), sort='newest') }}"
-            >
-              <i class="fas fa-calendar-alt mr-2"></i>Newest
             </a>
             <a
               class="dropdown-item"

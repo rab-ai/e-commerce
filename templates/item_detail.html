@@ -16,16 +16,16 @@
       <p class="text-muted mb-4">{{ item.description }}</p>
 
       <div class="d-flex align-items-center mb-3">
-        {% set star_rating = (item.rating/2) if item.rating else 0 %}
+        {% set star_rating = (item.rating) if item.rating else 0 %}
         <div class="mr-3">
-          {% for i in range(5) %} {% if i < star_rating|int %}
+          {% for i in range(10) %} {% if i < star_rating|int %}
           <i class="fas fa-star text-warning"></i>
           {% elif (star_rating - i) > 0 %}
           <i class="fas fa-star-half-alt text-warning"></i>
           {% else %}
           <i class="far fa-star text-warning"></i>
           {% endif %} {% endfor %}
-          <span class="ml-2">({{ "%.1f"|format(star_rating) }}/5)</span>
+          <span class="ml-2">({{ "%.1f"|format(star_rating) }}/10)</span>
         </div>
       </div>
 
@@ -62,14 +62,14 @@
               method="post"
             >
               <div class="form-group">
-                <label>Your Rating (1-5 stars)</label>
+                <label>Your Rating (1-10 stars)</label>
                 <div class="star-rating mb-3">
-                  {% for i in range(5, 0, -1) %}
+                  {% for i in range(10, 0, -1) %}
                   <input
                     type="radio"
                     id="star{{i}}"
                     name="rating"
-                    value="{{i*2}}"
+                    value="{{i}}"
                   />
                   <label for="star{{i}}"><i class="fas fa-star"></i></label>
                   {% endfor %}
@@ -86,9 +86,7 @@
                 ></textarea>
               </div>
 
-              <button type="submit" class="btn btn-success">
-                Submit Review & Rating
-              </button>
+              <button type="submit" class="btn btn-success">Submit</button>
             </form>
           </div>
           {% else %}
@@ -113,7 +111,7 @@
 
                 {% if review.rating %}
                 <div class="mb-2">
-                  {% for i in range(5) %} {% if i < (review.rating/2) %}
+                  {% for i in range(10) %} {% if i < (review.rating) %}
                   <i class="fas fa-star text-warning"></i>
                   {% else %}
                   <i class="far fa-star text-warning"></i>

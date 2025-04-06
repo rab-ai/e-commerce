@@ -38,22 +38,57 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-
 @app.route("/")
 def home():
+    search = request.args.get('search')
     category = request.args.get('category')
+    min_price = request.args.get('min_price')
+    max_price = request.args.get('max_price')
+    sort = request.args.get('sort')
+    query = {}
+    if search:
+        query["$or"] = [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}}
+        ]
     if category:
-        cursor = items_collection.find({"category": category})
+        query["category"] = category
+    price_query = {}
+    if min_price:
+        try:
+            price_query["$gte"] = float(min_price)
+        except ValueError:
+            pass
+    if max_price:
+        try:
+            price_query["$lte"] = float(max_price)
+        except ValueError:
+            pass
+    if price_query:
+        query["price"] = price_query
+
+    sort_order = None
+    if sort == "price_asc":
+        sort_order = [("price", 1)]
+    elif sort == "price_desc":
+        sort_order = [("price", -1)]
+    elif sort == "popular":
+        sort_order = [("rating", -1)]
+
+    if sort_order:
+        cursor = items_collection.find(query).sort(sort_order)
     else:
-        cursor = items_collection.find()
+        cursor = items_collection.find(query)
 
     items_list = []
     for item in cursor:
         if "_id" in item:
             item["_id"] = str(item["_id"])
+        item["rating"] = calculate_average_rating(item["item_id"])
         items_list.append(item)
-    
+
     return render_template("home.html", items=items_list)
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -97,7 +132,7 @@ def login():
         else:
             flash("User not found. Please check your username.", "danger")
         
-        return redirect(url_for('login'))  # Hata durumunda tekrar login sayfasına yönlendirme
+        return redirect(url_for('login'))
     
     return render_template("login.html")
 
@@ -105,73 +140,18 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
-    """
-    Kullanıcı çıkış işlemi.
-    """
     session.pop("user_id", None)
     session.pop("username", None)
     return redirect(url_for('home'))
-
-@app.route("/admin/add_item", methods=["GET", "POST"])
-@login_required
-@admin_required
-def add_item():
-    if request.method == "POST":
-        item_id = str(uuid.uuid4())
-        name = request.form.get("name")
-        description = request.form.get("description")
-        price = request.form.get("price")
-        seller = request.form.get("seller")
-        image = request.form.get("image")
-        category = request.form.get("category")
-
-        extra_fields = {}
-        if category == "GPS Sport Watches":
-            extra_fields["battery_life"] = request.form.get("battery_life")
-        elif category in ["Antique Furniture", "Vinyls"]:
-            extra_fields["age"] = request.form.get("age")
-        elif category == "Running Shoes":
-            extra_fields["size"] = request.form.get("size")
-            extra_fields["material"] = request.form.get("material")
-            
-        new_item = {
-            "item_id": item_id,
-            "name": name,
-            "description": description,
-            "price": price,
-            "seller": seller,
-            "image": image,
-            "category": category,
-            "rating": 0,
-            "ratings": [],
-            "reviews": []
-        }
-        new_item.update(extra_fields)
-
-        items_collection.insert_one(new_item)
-        return redirect(url_for('home'))
-    return render_template("admin_add_item.html")
-
-
-@app.route("/admin/remove_item", methods=["GET", "POST"])
-@login_required
-@admin_required
-def remove_item():
-    if request.method == "POST":
-        item_ids = request.form.getlist("item_ids")
-        if item_ids:
-            items_collection.delete_many({"item_id": {"$in": item_ids}})
-        return redirect(url_for('remove_item'))
-    else:
-        cursor = items_collection.find()
-        items_list = list(cursor)
-        return render_template("admin_remove_item.html", items=items_list)
 
 @app.route("/item/<item_id>", methods=["GET"])
 def item_detail(item_id):
     item = items_collection.find_one({"item_id": item_id})
     if not item:
         return "Item not found", 404
+    
+    dynamic_rating = calculate_average_rating(item_id)
+    item["rating"] = dynamic_rating
     
     enriched_reviews = []
     for review in item.get("reviews", []):
@@ -188,7 +168,6 @@ def item_detail(item_id):
         })
     
     return render_template("item_detail.html", item=item, reviews=enriched_reviews)
-
 
 @app.route("/item/<item_id>/rate-review", methods=["POST"])
 @login_required
@@ -233,112 +212,25 @@ def rate_review_item(item_id):
         if update_data:
             items_collection.update_one({"item_id": item_id}, {"$set": update_data})
         
-        flash("Rating and review submitted successfully!", "success")
     except Exception as e:
-        flash(f"Error submitting rating/review: {str(e)}", "error")
-    return redirect(url_for('item_detail', item_id=item_id))
-
-
-@app.route("/item/<item_id>/rate", methods=["POST"])
-@login_required
-def rate_item(item_id):
-    user_id = session.get("user_id")
-    rating_value = int(request.form.get("rating"))
-    
-    items_collection.update_one(
-        {"item_id": item_id},
-        {"$pull": {"ratings": {"user_id": user_id}}}
-    )
-    items_collection.update_one(
-        {"item_id": item_id},
-        {"$push": {"ratings": {"user_id": user_id, "score": rating_value}}}
-    )
-    new_avg = calculate_average_rating(item_id)
-    items_collection.update_one(
-        {"item_id": item_id},
-        {"$set": {"rating": new_avg}}
-    )
-    
+        return f"Error: {str(e)}", 500
     return redirect(url_for('item_detail', item_id=item_id))
 
 def calculate_average_rating(item_id):
     item = items_collection.find_one({"item_id": item_id})
     if not item or not item.get("ratings"):
         return 0
-    return sum(r["score"] for r in item["ratings"]) / len(item["ratings"])
 
-@app.route("/item/<item_id>/review", methods=["POST"])
-@login_required
-def review_item(item_id):
-    try:
-        user_id = session["user_id"]
-        review_text = request.form["review"]
-        
-        items_collection.update_one(
-            {"item_id": item_id},
-            {"$pull": {"reviews": {"user_id": user_id}}}
-        )
-        
-        items_collection.update_one(
-            {"item_id": item_id},
-            {"$push": {
-                "reviews": {
-                    "user_id": user_id,
-                    "review_text": review_text
-                }
-            }}
-        )
-        
-        flash("Review submitted successfully!", "success")
-    except Exception as e:
-        flash(f"Error submitting review: {str(e)}", "error")
-    
-    return redirect(url_for('item_detail', item_id=item_id))
+    valid_ratings = []
+    for rating in item["ratings"]:
+        user_id = rating.get("user_id")
+        if user_id and users_collection.find_one({"user_id": user_id}):
+            valid_ratings.append(rating["score"])
 
-@app.route("/admin/add_user", methods=["GET", "POST"])
-@login_required
-@admin_required
-def add_user():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        if users_collection.find_one({"username": username}):
-            return "User already exists!", 400
-        user_id = str(uuid.uuid4())
-        new_user = {
-            "user_id": user_id,
-            "username": username,
-            "password": password,
-            "is_admin": False
-        }
-        users_collection.insert_one(new_user)
-        return redirect(url_for('home'))
-    return '''
-        <h2>Add New User (Admin)</h2>
-        <form method="post">
-            Username: <input type="text" name="username" required/><br/>
-            Password: <input type="password" name="password" required/><br/>
-            <input type="submit" value="Add User"/>
-        </form>
-    '''
+    if not valid_ratings:
+        return 0
 
-@app.route("/admin/remove_user", methods=["GET", "POST"])
-@login_required
-@admin_required
-def remove_user():
-    if request.method == "POST":
-        user_ids = request.form.getlist("user_ids")
-        if user_ids:
-            users_collection.delete_many({"user_id": {"$in": user_ids}})
-            items_collection.update_many(
-                {},
-                {"$pull": {"ratings": {"user_id": {"$in": user_ids}}, "reviews": {"user_id": {"$in": user_ids}}}}
-            )
-        return redirect(url_for('remove_user'))
-    else:
-        users_cursor = users_collection.find({"is_admin": False})
-        users_list = list(users_cursor)
-        return render_template("admin_remove_user.html", users=users_list)
+    return sum(valid_ratings) / len(valid_ratings)
 
 @app.route("/profile")
 @login_required
@@ -414,7 +306,10 @@ def admin_panel():
         elif action == "add_item":
             name = request.form.get("name")
             description = request.form.get("description")
-            price = request.form.get("price")
+            try:
+                price = float(request.form.get("price", 0))
+            except ValueError:
+                price = 0.0
             seller = request.form.get("seller")
             image = request.form.get("image")
             category = request.form.get("category")
@@ -464,7 +359,7 @@ def admin_panel():
                     "is_admin": False
                 }
                 users_collection.insert_one(new_user)
-                flash(f"User '{username}' added successfully.", "success")
+                
             else:
                 flash(f"Username '{username}' already exists.", "danger")
 

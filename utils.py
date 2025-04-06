@@ -5,6 +5,5 @@ def hash_password(password):
 
 def check_password(password, hashed):
     if not hashed.startswith("$2b$"):
-        # Bu düz metin şifre olabilir, eşleşme yok deyip geç
         return False
     return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))

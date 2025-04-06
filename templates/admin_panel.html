@@ -71,7 +71,13 @@ content %}
 
     <div class="form-group">
       <label>Category</label>
-      <select name="category" class="form-control" required>
+      <select
+        name="category"
+        class="form-control"
+        required
+        onchange="updateFields(this.value)"
+      >
+        <option value="">-- Select Category --</option>
         <option value="Vinyls">Vinyls</option>
         <option value="Antique Furniture">Antique Furniture</option>
         <option value="GPS Sport Watches">GPS Sport Watches</option>
@@ -79,26 +85,68 @@ content %}
       </select>
     </div>
 
-    <div class="form-group">
-      <label>Battery Life (GPS Watches)</label>
+    <div class="form-group d-none" id="battery_life_group">
+      <label
+        >Battery Life
+        <small class="text-muted">(GPS Sport Watches only)</small></label
+      >
       <input type="text" class="form-control" name="battery_life" />
     </div>
-    <div class="form-group">
-      <label>Age (Antique Furniture / Vinyls)</label>
+
+    <div class="form-group d-none" id="age_group">
+      <label
+        >Age
+        <small class="text-muted"
+          >(Antique Furniture / Vinyls only)</small
+        ></label
+      >
       <input type="text" class="form-control" name="age" />
     </div>
-    <div class="form-group">
-      <label>Size (Running Shoes)</label>
+
+    <div class="form-group d-none" id="size_group">
+      <label>Size <small class="text-muted">(Running Shoes only)</small></label>
       <input type="text" class="form-control" name="size" />
     </div>
-    <div class="form-group">
-      <label>Material (Furniture, Running Shoes)</label>
+
+    <div class="form-group d-none" id="material_group">
+      <label
+        >Material
+        <small class="text-muted"
+          >(Antique Furniture / Running Shoes only)</small
+        ></label
+      >
       <input type="text" class="form-control" name="material" />
     </div>
 
     <button type="submit" class="btn btn-primary">Add Item</button>
   </form>
 
+  <script>
+    function updateFields(category) {
+      const show = (id) =>
+        document.getElementById(id).classList.remove('d-none')
+      const hide = (id) => document.getElementById(id).classList.add('d-none')
+
+      // Her şeyi önce gizle
+      hide('battery_life_group')
+      hide('age_group')
+      hide('size_group')
+      hide('material_group')
+
+      if (category === 'GPS Sport Watches') {
+        show('battery_life_group')
+      }
+      if (category === 'Antique Furniture' || category === 'Vinyls') {
+        show('age_group')
+      }
+      if (category === 'Running Shoes') {
+        show('size_group')
+      }
+      if (category === 'Antique Furniture' || category === 'Running Shoes') {
+        show('material_group')
+      }
+    }
+  </script>
   {% elif section == "remove_item" %}
   <h3 class="mb-3">Remove Item</h3>
   <form method="post" action="{{ url_for('admin_panel') }}">

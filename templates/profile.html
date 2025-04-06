@@ -16,16 +16,16 @@ content %}
 
           <div class="d-flex align-items-center mb-3">
             <div class="mr-3">
-              {% set user_rating = average_rating|float if average_rating else 0
-              %} {% for i in range(5) %} {% if i < user_rating %}
+              {% set star_rating = average_rating|float if average_rating else 0
+              %} {% for i in range(10) %} {% if i < star_rating|int %}
               <i class="fas fa-star text-warning"></i>
-              {% elif (user_rating - i) > 0 %}
+              {% elif (star_rating - i) > 0 %}
               <i class="fas fa-star-half-alt text-warning"></i>
               {% else %}
               <i class="far fa-star text-warning"></i>
               {% endif %} {% endfor %}
               <span class="ml-2"
-                >{{ "%.1f"|format(user_rating) }} Average Rating</span
+                >{{ "%.1f"|format(star_rating) }} / 10 Average Rating</span
               >
             </div>
           </div>
@@ -52,8 +52,8 @@ content %}
           <div class="d-flex justify-content-between">
             <h5 class="card-title">{{ rev.item_name }}</h5>
             <div>
-              {% if rev.rating is defined and rev.rating %} {% for i in range(5)
-              %} {% if i < (rev.rating/2) %}
+              {% if rev.rating is defined and rev.rating %} {% for i in
+              range(10) %} {% if i < (rev.rating) %}
               <i class="fas fa-star text-warning"></i>
               {% else %}
               <i class="far fa-star text-warning"></i>
