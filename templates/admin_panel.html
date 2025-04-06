@@ -169,7 +169,12 @@ content %}
     }
   </script>
 
-  {% elif section == "add_user" %}
+  {% elif section == "add_user" %} {% with messages =
+  get_flashed_messages(with_categories=true) %} {% if messages %} {% for
+  category, message in messages %}
+  <div class="alert alert-{{ category }} mt-2">{{ message }}</div>
+  {% endfor %} {% endif %} {% endwith %}
+
   <h3 class="mb-3">Add User</h3>
   <form method="post" action="{{ url_for('admin_panel') }}" autocomplete="off">
     <input type="hidden" name="action" value="add_user" />

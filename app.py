@@ -3,7 +3,12 @@ from flask import Flask, flash, render_template, request, redirect, url_for, ses
 from pymongo import MongoClient
 import os
 import uuid
+from flask import flash
 from functools import wraps
+from utils import check_password, hash_password
+from dotenv import load_dotenv
+
+load_dotenv()
 
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://rabiasahincs:G075cFEiv6gjHLiJ@assignment1.lvx4kdh.mongodb.net/?retryWrites=true&w=majority&appName=assignment1")
 client = MongoClient(MONGO_URI)
@@ -55,19 +60,24 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+
         if users_collection.find_one({"username": username}):
-            return "User already exists!", 400
+            flash("Username already exists. Please choose another.", "danger")
+            return redirect(url_for('register'))
+
         user_id = str(uuid.uuid4())
+        hashed_pw = hash_password(password)
         new_user = {
             "user_id": user_id,
             "username": username,
-            "password": password,
+            "password": hashed_pw,
             "is_admin": False
         }
         users_collection.insert_one(new_user)
+        flash("Account created successfully. You can now log in.", "success")
         return redirect(url_for('login'))
-    return render_template("register.html")
 
+    return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -75,14 +85,23 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         user = users_collection.find_one({"username": username})
-        if user and user.get("password") == password:
-            session["user_id"] = user.get("user_id")
-            session["username"] = username
-            session["is_admin"] = user.get("is_admin", False)
-            return redirect(url_for('home'))
+        
+        if user:
+            if check_password(password, user.get("password")):
+                session["user_id"] = user.get("user_id")
+                session["username"] = username
+                session["is_admin"] = user.get("is_admin", False)
+                return redirect(url_for('home'))
+            else:
+                flash("Incorrect password. Please try again.", "danger")
         else:
-            return "Invalid credentials", 401
+            flash("User not found. Please check your username.", "danger")
+        
+        return redirect(url_for('login'))  # Hata durumunda tekrar login sayfasına yönlendirme
+    
     return render_template("login.html")
+
+
 @app.route("/logout")
 @login_required
 def logout():
@@ -435,16 +454,22 @@ def admin_panel():
         elif action == "add_user":
             username = request.form.get("username")
             password = request.form.get("password")
+
             if not users_collection.find_one({"username": username}):
+                hashed_pw = hash_password(password)
                 new_user = {
                     "user_id": str(uuid.uuid4()),
                     "username": username,
-                    "password": password,
+                    "password": hashed_pw,
                     "is_admin": False
                 }
                 users_collection.insert_one(new_user)
+                flash(f"User '{username}' added successfully.", "success")
+            else:
+                flash(f"Username '{username}' already exists.", "danger")
 
             return redirect(url_for("admin_panel", section="add_user"))
+
     items = []
     users = []
     if section == "remove_item":
@@ -467,10 +492,12 @@ app.handler = handler
 if __name__ == "__main__":
     if not users_collection.find_one({"username": "admin"}):
         admin_id = str(uuid.uuid4())
+        admin_pw = os.getenv("ADMIN_PASSWORD", "adminpass")
+        hashed_admin_pw = hash_password(admin_pw)
         admin_user = {
             "user_id": admin_id,
             "username": "admin",
-            "password": "adminpass",
+            "password": hashed_admin_pw,
             "is_admin": True
         }
         users_collection.insert_one(admin_user)

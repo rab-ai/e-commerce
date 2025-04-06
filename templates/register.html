@@ -9,11 +9,10 @@ content %}
             Create Account
           </h2>
 
-          {% with messages = get_flashed_messages() %} {% if messages %}
-          <div class="alert alert-danger">
-            {% for message in messages %} {{ message }} {% endfor %}
-          </div>
-          {% endif %} {% endwith %}
+          {% with messages = get_flashed_messages(with_categories=true) %} {% if
+          messages %} {% for category, message in messages %}
+          <div class="alert alert-{{ category }} mt-2">{{ message }}</div>
+          {% endfor %} {% endif %} {% endwith %}
 
           <form method="post" action="{{ url_for('register') }}">
             <div class="form-group mb-3">
