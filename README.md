@@ -5,7 +5,7 @@ This is a Flask-based e-commerce web application that leverages MongoDB for its 
 ## Vercel Deployment
 
 The application is deployed on Vercel. You can access the live demo at:  
-**https://e-commerce-one-liard.vercel.app/**
+**https://e-commerce-v1-two.vercel.app/**
 
 ## How to Login
 
