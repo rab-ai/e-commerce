@@ -84,7 +84,7 @@ def home():
     for item in cursor:
         if "_id" in item:
             item["_id"] = str(item["_id"])
-        item["rating"] = calculate_average_rating(item["item_id"])
+        item["rating"] = item.get("rating", 0)
         items_list.append(item)
 
     return render_template("home.html", items=items_list)
@@ -168,7 +168,6 @@ def item_detail(item_id):
         })
     
     return render_template("item_detail.html", item=item, reviews=enriched_reviews)
-
 @app.route("/item/<item_id>/rate-review", methods=["POST"])
 @login_required
 def rate_review_item(item_id):
@@ -176,8 +175,6 @@ def rate_review_item(item_id):
         user_id = session.get("user_id")
         rating_value = request.form.get("rating")
         review_text = request.form.get("review")
-        
-        update_data = {}
         
         if rating_value:
             rating_value = int(rating_value)
@@ -190,8 +187,7 @@ def rate_review_item(item_id):
                 {"item_id": item_id},
                 {"$push": {"ratings": {"user_id": user_id, "score": rating_value}}}
             )
-            
-            update_data["rating"] = calculate_average_rating(item_id)
+            recalc_item_rating(item_id)
         
         if review_text:
             items_collection.update_one(
@@ -209,12 +205,28 @@ def rate_review_item(item_id):
                 }}
             )
         
-        if update_data:
-            items_collection.update_one({"item_id": item_id}, {"$set": update_data})
-        
     except Exception as e:
         return f"Error: {str(e)}", 500
     return redirect(url_for('item_detail', item_id=item_id))
+
+
+def recalc_item_rating(item_id):
+    pipeline = [
+        {"$match": {"item_id": item_id}},
+        {"$unwind": "$ratings"},
+        {"$group": {"_id": None, "avgRating": {"$avg": "$ratings.score"}}}
+    ]
+    result = list(items_collection.aggregate(pipeline))
+    new_rating = result[0]["avgRating"] if result else 0
+    items_collection.update_one({"item_id": item_id}, {"$set": {"rating": new_rating}})
+    return new_rating
+
+    return new_rating
+
+@app.route("/update_rating/<item_id>", methods=["POST"])
+def update_rating(item_id):
+    new_rating = recalc_item_rating(item_id)
+    return jsonify({"new_rating": new_rating})
 
 def calculate_average_rating(item_id):
     item = items_collection.find_one({"item_id": item_id})
@@ -301,6 +313,9 @@ def admin_panel():
                         }
                     }
                 )
+                affected_items = items_collection.find({"ratings.user_id": {"$in": user_ids}})
+                for item in affected_items:
+                    recalc_item_rating(item["item_id"])
             return redirect(url_for("admin_panel", section="remove_user"))
 
         elif action == "add_item":
