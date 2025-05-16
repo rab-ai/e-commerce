@@ -80,3 +80,8 @@ The application is deployed on Vercel. You can access the live demo at:
 ### Environment Variables
 
 - Sensitive data (e.g., MongoDB URI, Admin Password) is managed using environment variables, which are loaded via the `.env` package.
+
+![image](https://github.com/user-attachments/assets/403e23ea-545b-4b44-be15-3dd03c36d0b5)
+
+
+
