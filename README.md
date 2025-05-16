@@ -83,5 +83,15 @@ The application is deployed on Vercel. You can access the live demo at:
 
 ![image](https://github.com/user-attachments/assets/403e23ea-545b-4b44-be15-3dd03c36d0b5)
 
+![image](https://github.com/user-attachments/assets/faf798b7-5d73-4e1d-9350-8d6e464d5807)
+
+![image](https://github.com/user-attachments/assets/0df9cc1c-1889-4e35-b7f3-63ce2e721f3a)
+
+![image](https://github.com/user-attachments/assets/2b367848-5960-4d30-b9ca-7f9b6ec0a691)
+
+![image](https://github.com/user-attachments/assets/7f2b216b-d261-40f6-8054-2d4c12d3bc82)
+
+
+
 
 
